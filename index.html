@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Artifact Odyssey: an interactive timeline through Indian art history.">
+	<title>Artifact Odyssey | Indian Art Through Time</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<style>
+		:root { --ink:#202323; --muted:#686b65; --paper:#f3efe5; --panel:#fffdf8; --saffron:#d96c3f; --turmeric:#e0a63f; --teal:#236d6a; --line:#d8d0c1; --shadow:0 18px 50px rgba(54,44,28,.12); }
+		* { box-sizing:border-box; }
+		html { scroll-behavior:smooth; }
+		body { margin:0; color:var(--ink); background:var(--paper); font-family:"Plus Jakarta Sans",sans-serif; }
+		body::before { content:""; position:fixed; inset:0; pointer-events:none; opacity:.23; background-image:radial-gradient(#b7a98e .7px,transparent .7px); background-size:14px 14px; }
+		.shell { position:relative; max-width:1280px; margin:auto; padding:28px 42px 70px; }
+		header { display:flex; justify-content:space-between; align-items:center; padding-bottom:42px; }
+		.brand { display:flex; align-items:center; gap:12px; color:var(--ink); text-decoration:none; font-family:"DM Mono",monospace; font-size:12px; letter-spacing:.06em; text-transform:uppercase; }
+		.brand-mark { display:grid; place-items:center; width:34px; height:34px; color:#fff; background:var(--teal); border-radius:50%; font-family:"Playfair Display",serif; font-size:19px; }
+		nav { display:flex; gap:24px; font-size:12px; color:var(--muted); }
+		nav a { color:inherit; text-decoration:none; }
+		.hero { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:50px; align-items:end; padding:35px 0 58px; border-top:1px solid var(--line); }
+		.eyebrow { color:var(--saffron); font:500 11px "DM Mono",monospace; letter-spacing:.14em; text-transform:uppercase; }
+		h1,h2,h3,p { margin-top:0; }
+		h1 { max-width:760px; margin:15px 0 20px; font:600 clamp(45px,6.5vw,88px)/.98 "Playfair Display",serif; letter-spacing:-.035em; }
+		.intro { max-width:640px; color:var(--muted); font-size:15px; line-height:1.8; }
+		.hero-note { padding-left:22px; border-left:2px solid var(--turmeric); }
+		.hero-note strong { display:block; margin-bottom:9px; font:600 22px "Playfair Display",serif; }
+		.hero-note p { color:var(--muted); font-size:12px; line-height:1.7; }
+		.controls { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:16px; }
+		.controls h2 { margin:0; font:600 28px "Playfair Display",serif; }
+		.filters { display:flex; flex-wrap:wrap; gap:8px; }
+		button { cursor:pointer; font:inherit; }
+		.filter { padding:9px 13px; border:1px solid var(--line); border-radius:100px; color:var(--muted); background:transparent; font-size:11px; }
+		.filter.active,.filter:hover { color:#fff; border-color:var(--teal); background:var(--teal); }
+		#timeline { height:570px; overflow:hidden; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:rgba(255,253,248,.46); }
+		.tl-timeline { font-family:"Plus Jakarta Sans",sans-serif; }
+		.tl-headline,.tl-text p { font-family:"Playfair Display",serif; }
+		.tl-timemarker-text h2 { font-family:"Plus Jakarta Sans",sans-serif; }
+		.tl-slidenav-next,.tl-slidenav-previous { color:var(--teal) !important; }
+		.tl-timeline .tl-attribution { display:none; }
+		.explore { display:grid; grid-template-columns:1fr 1fr; gap:18px; padding-top:70px; }
+		.section-label { grid-column:1/-1; display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--line); padding-bottom:13px; }
+		.section-label h2 { margin:0; font:600 30px "Playfair Display",serif; }
+		.section-label span { color:var(--muted); font:11px "DM Mono",monospace; }
+		.artifact { display:grid; grid-template-columns:145px 1fr; min-height:180px; gap:20px; padding:14px; border:1px solid var(--line); background:var(--panel); transition:transform .2s,box-shadow .2s; }
+		.artifact:hover { transform:translateY(-3px); box-shadow:var(--shadow); }
+		.artifact-image { display:block; width:145px; height:150px; object-fit:cover; filter:saturate(.82); }
+		.artifact-meta { padding:5px 6px 5px 0; }
+		.artifact-period { color:var(--saffron); font:10px "DM Mono",monospace; letter-spacing:.08em; text-transform:uppercase; }
+		.artifact h3 { margin:8px 0 8px; font:600 23px/1.1 "Playfair Display",serif; }
+		.artifact p { color:var(--muted); font-size:12px; line-height:1.6; }
+		.open { padding:0; border:0; color:var(--teal); background:transparent; font-size:11px; font-weight:700; }
+		.drawer { position:fixed; z-index:4; inset:0; display:grid; place-items:center; padding:22px; background:rgba(27,31,29,.55); opacity:0; pointer-events:none; transition:opacity .2s; }
+		.drawer.opened { opacity:1; pointer-events:auto; }
+		.detail { position:relative; display:grid; grid-template-columns:minmax(220px,42%) 1fr; width:min(780px,100%); max-height:90vh; overflow:auto; background:var(--panel); box-shadow:0 25px 80px rgba(0,0,0,.25); }
+		.detail img { width:100%; height:100%; min-height:360px; object-fit:cover; }
+		.detail-copy { padding:44px 38px; }
+		.detail-copy h2 { margin:11px 0 17px; font:600 38px/1.04 "Playfair Display",serif; }
+		.detail-copy p { color:var(--muted); font-size:13px; line-height:1.8; }
+		.detail-copy .fact { margin-top:25px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink); font:12px/1.6 "DM Mono",monospace; }
+		.close { position:absolute; top:14px; right:14px; z-index:1; width:32px; height:32px; border:1px solid var(--line); border-radius:50%; background:var(--panel); font-size:18px; }
+		footer { display:flex; justify-content:space-between; margin-top:70px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font:10px "DM Mono",monospace; text-transform:uppercase; }
+		@media (max-width:760px) { .shell { padding:20px 18px 50px; } header { padding-bottom:25px; } nav { display:none; } .hero { display:block; padding:25px 0 38px; } h1 { font-size:52px; } .hero-note { margin-top:30px; } .controls { display:block; } .filters { margin-top:18px; } #timeline { height:510px; } .explore { grid-template-columns:1fr; padding-top:50px; } .detail { grid-template-columns:1fr; max-height:92vh; } .detail img { height:230px; min-height:0; } .detail-copy { padding:28px 24px; } .detail-copy h2 { font-size:31px; } footer { display:block; line-height:2; } }
+	</style>
+</head>
+<body>
+	<main class="shell">
+		<header><a class="brand" href="#top"><span class="brand-mark">ॐ</span> Artifact Odyssey</a><nav><a href="#timeline-section">Timeline</a><a href="#artifacts">Artifacts</a><a href="#about">About the collection</a></nav></header>
+		<section class="hero" id="top"><div><div class="eyebrow">A visual history · 2500 BCE — 1900 CE</div><h1>India, in objects.</h1><p class="intro">Trace the ideas, materials, and makers that shaped Indian art across five millennia. Move through the timeline, then step closer to the works that still speak.</p></div><aside class="hero-note"><strong>Six moments<br>of making</strong><p>From the quiet geometry of a seal to the intricate rhythm of a bronze dancer.</p></aside></section>
+		<section id="timeline-section"><div class="controls"><h2>The long view</h2><div class="filters" aria-label="Filter artifacts"><button class="filter active" data-filter="all">All periods</button><button class="filter" data-filter="ancient">Ancient</button><button class="filter" data-filter="classical">Classical</button><button class="filter" data-filter="medieval">Medieval</button><button class="filter" data-filter="modern">Modern</button></div></div><div id="timeline" aria-label="Interactive timeline of Indian art"></div></section>
+		<section class="explore" id="artifacts"><div class="section-label"><h2>Look closer</h2><span>Click an artifact to open its story</span></div><article class="artifact" data-period="ancient"><img class="artifact-image" src="https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=500&q=80" alt="Stone sculpture detail"><div class="artifact-meta"><div class="artifact-period">c. 2500 BCE · Indus Valley</div><h3>Dancing Figure</h3><p>A small bronze body with an unexpectedly commanding presence.</p><button class="open" data-artifact="dancer">Read the object →</button></div></article><article class="artifact" data-period="ancient"><img class="artifact-image" src="https://www.harappa.com/sites/default/files/slides/m-633A.jpg" alt="Carved stone seal impression"><div class="artifact-meta"><div class="artifact-period">c. 2500 BCE · Harappa</div><h3>Unicorn Seal</h3><p>A tiny administrative object carrying a still-undeciphered world.</p><button class="open" data-artifact="seal">Read the object →</button></div></article><article class="artifact" data-period="classical"><img class="artifact-image" src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=500&q=80" alt="Ancient temple sculpture"><div class="artifact-meta"><div class="artifact-period">c. 450 CE · Gupta</div><h3>Sarnath Buddha</h3><p>Serenity rendered through proportion, gesture, and almost weightless stone.</p><button class="open" data-artifact="buddha">Read the object →</button></div></article><article class="artifact" data-period="medieval"><img class="artifact-image" src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=500&q=80" alt="Ornate temple architecture"><div class="artifact-meta"><div class="artifact-period">c. 1010 CE · Chola</div><h3>Shiva Nataraja</h3><p>Creation and destruction held in one ring of cosmic fire.</p><button class="open" data-artifact="nataraja">Read the object →</button></div></article><article class="artifact" data-period="medieval"><img class="artifact-image" src="https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=500&q=80" alt="Colorful Indian miniature style painting"><div class="artifact-meta"><div class="artifact-period">c. 1650 CE · Mughal</div><h3>Emperor's Album</h3><p>Painting becomes observation: flowers, faces, feathers, recorded precisely.</p><button class="open" data-artifact="album">Read the object →</button></div></article><article class="artifact" data-period="modern"><img class="artifact-image" src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=500&q=80" alt="Abstract modern artwork"><div class="artifact-meta"><div class="artifact-period">c. 1948 CE · Modern</div><h3>City / Memory</h3><p>Modern Indian painting turns the inherited image into a new language.</p><button class="open" data-artifact="modern">Read the object →</button></div></article></section>
+		<footer id="about"><span>Artifact Odyssey · An open study room</span><span>Images via Unsplash · Native timeline</span></footer>
+	</main>
+	<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="detail-title"><div class="detail"><button class="close" aria-label="Close details">×</button><img id="detail-image" src="" alt=""><div class="detail-copy"><div class="eyebrow" id="detail-period"></div><h2 id="detail-title"></h2><p id="detail-description"></p><div class="fact" id="detail-fact"></div></div></div></div>
+	<script>
+		const artifacts = {
+			dancer:{title:'Dancing Figure',period:'c. 2500 BCE · Indus Valley',image:'https://images.unsplash.com/photo-1564399579883-451a5d44ec08?auto=format&fit=crop&w=900&q=85',description:'Cast in bronze using the lost-wax technique, this compact figure from Mohenjo-daro is one of the earliest known metal sculptures in South Asia. Her relaxed stance and stacked bangles make her feel startlingly present.',fact:'Material · bronze\nFound · Mohenjo-daro, present-day Pakistan'},
+			seal:{title:'Unicorn Seal',period:'c. 2500 BCE · Harappa',image:'https://www.harappa.com/sites/default/files/slides/m-633A.jpg',description:'Pressed into wet clay, carved steatite seals helped organize trade and identity across the Indus cities. The horned animal is a recurring motif; the script around it remains one of history’s most tantalizing unsolved puzzles.',fact:'Material · steatite\nCollection · British Museum'},
+			buddha:{title:'Sarnath Buddha',period:'c. 450 CE · Gupta period',image:'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=85',description:'The Gupta period gave Buddhist sculpture a new visual vocabulary of inward calm. Here the Buddha teaches through the turning of the wheel, his body softened into an image of spiritual balance.',fact:'Material · sandstone\nSite · Sarnath, Uttar Pradesh'},
+			nataraja:{title:'Shiva Nataraja',period:'c. 1010 CE · Chola period',image:'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=900&q=85',description:'The Chola bronzes made divine movement portable. Shiva dances within a ring of flames, one foot crushing ignorance while another rises in release: a complete philosophy held in a single, fluid silhouette.',fact:'Material · bronze\nTradition · Tamil devotional art'},
+			album:{title:"Emperor's Album",period:'c. 1650 CE · Mughal period',image:'https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=900&q=85',description:'Mughal ateliers brought together Persian composition, Indian color, and a new attention to the natural world. Album pages were designed to be handled, rearranged, and viewed at intimate scale.',fact:'Material · opaque watercolor on paper\nPatronage · Mughal court'},
+			modern:{title:'City / Memory',period:'c. 1948 CE · Modern India',image:'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&w=900&q=85',description:'After independence, artists across India asked what a modern visual language could be. Abstraction became a way to hold memory, migration, and the pressure of a rapidly changing city.',fact:'Medium · oil on canvas\nContext · post-independence modernism'}
+		};
+		const timelineItems = Object.entries(artifacts).map(([key,item]) => ({key,title:item.title,period:item.period,image:item.image,description:item.description,year:key==='dancer'||key==='seal'?'2500 BCE':key==='buddha'?'450 CE':key==='nataraja'?'1010 CE':key==='album'?'1650 CE':'1948 CE'}));
+		const timeline = document.getElementById('timeline');
+		timeline.innerHTML = '<div class="timeline-stage"><div class="timeline-header"><div><span class="eyebrow">Material · belief · image</span><h3>Indian art, in six objects.</h3></div><div class="timeline-count" aria-live="polite"></div></div><div class="timeline-track" role="tablist" aria-label="Artifacts by date"></div><div class="timeline-feature"></div><div class="timeline-controls"><button class="timeline-prev" type="button" aria-label="Previous artifact">← Previous</button><button class="timeline-next" type="button" aria-label="Next artifact">Next →</button></div></div>';
+		const track = timeline.querySelector('.timeline-track');
+		const feature = timeline.querySelector('.timeline-feature');
+		let activeTimelineIndex = 0;
+		timelineItems.forEach((item,index) => { const button=document.createElement('button'); button.className='timeline-node'; button.type='button'; button.setAttribute('role','tab'); button.setAttribute('aria-label',item.title); button.innerHTML='<span class="node-dot"></span><span class="node-year">'+item.year+'</span><span class="node-title">'+item.title+'</span>'; button.addEventListener('click',()=>showTimelineItem(index)); track.appendChild(button); });
+		function showTimelineItem(index){ activeTimelineIndex=(index+timelineItems.length)%timelineItems.length; const item=timelineItems[activeTimelineIndex]; feature.innerHTML='<img src="'+item.image+'" alt="'+item.title+'"><div class="timeline-feature-copy"><span class="eyebrow">'+item.period+'</span><h4>'+item.title+'</h4><p>'+item.description+'</p><button class="open" data-artifact="'+item.key+'">Explore this artifact →</button></div>'; track.querySelectorAll('.timeline-node').forEach((node,nodeIndex)=>{node.classList.toggle('active',nodeIndex===activeTimelineIndex);node.setAttribute('aria-selected',nodeIndex===activeTimelineIndex?'true':'false');}); timeline.querySelector('.timeline-count').textContent=String(activeTimelineIndex+1).padStart(2,'0')+' / '+String(timelineItems.length).padStart(2,'0'); feature.querySelector('.open').addEventListener('click',()=>openDetail(item.key)); }
+		timeline.querySelector('.timeline-prev').addEventListener('click',()=>showTimelineItem(activeTimelineIndex-1)); timeline.querySelector('.timeline-next').addEventListener('click',()=>showTimelineItem(activeTimelineIndex+1)); showTimelineItem(0);
+		const drawer=document.getElementById('drawer');
+		function openDetail(key){const item=artifacts[key]; document.getElementById('detail-image').src=item.image; document.getElementById('detail-image').alt=item.title; document.getElementById('detail-period').textContent=item.period; document.getElementById('detail-title').textContent=item.title; document.getElementById('detail-description').textContent=item.description; document.getElementById('detail-fact').textContent=item.fact; drawer.classList.add('opened'); document.querySelector('.close').focus();}
+		document.querySelectorAll('.open').forEach(button=>button.addEventListener('click',()=>openDetail(button.dataset.artifact)));
+		document.querySelector('.close').addEventListener('click',()=>drawer.classList.remove('opened'));
+		drawer.addEventListener('click',event=>{if(event.target===drawer) drawer.classList.remove('opened');});
+		document.addEventListener('keydown',event=>{if(event.key==='Escape') drawer.classList.remove('opened');});
+		document.querySelectorAll('.filter').forEach(button=>button.addEventListener('click',()=>{document.querySelector('.filter.active').classList.remove('active');button.classList.add('active'); document.querySelectorAll('.artifact').forEach(card=>card.hidden=button.dataset.filter!=='all'&&card.dataset.period!==button.dataset.filter);}));
+	</script>
+	<script src="index.js" defer></script>
+</body>
+</html>
